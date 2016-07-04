@@ -18,12 +18,10 @@ ENV BUILDPCKGS "autoconf automake autopoint autotools-dev binutils bsdmainutils 
 	manpages-dev patch php-pear php5-dev pkg-php-tools po-debconf \
 	shared-mime-info shtool xdg-user-dirs xz-utils zlib1g-dev"
 
-RUN sed -xe \
-	DEBIAN_FRONTEND=noninteractive \
-	apt-get update \
-	apt-get upgrade -y \
-	apt-get clean \
-	apt-get install -y --no-install-recommends \
+RUN apt-get update \
+	&& apt-get upgrade -y \
+	&& apt-get clean \
+	&& DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
 		apache2 \
 		ca-certificates \
 		curl \
@@ -58,7 +56,6 @@ RUN sed -xe \
 		xdebug.profiler_output_name = \"cachegrind.out.%t-%s\"" \
 			> /etc/php5/cli/conf.d/30-xdebug.ini \
 	&& apt-get remove ${BUILDPCKGS} \
-	&& service apache2 restart \
 	&& rm -rf \
 		/var/lib/apt/lists/* \
 		/usr/share/man \
