@@ -4,12 +4,11 @@ MAINTAINER ixkaito <ixkaito@gmail.com>
 RUN apt-get update \
   && apt-get clean \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    apache2 \
     ca-certificates \
     curl \
     openssh-client \
     less \
-    libapache2-mod-php \
+    nginx \
     mysql-server \
     mysql-client \
     php7.0 \
@@ -18,6 +17,7 @@ RUN apt-get update \
     php7.0-gd \
     php7.0-mysql \
     php7.0-xdebug \
+    php7.0-fpm \
     supervisor \
     vim \
   && apt-get install -y build-essential software-properties-common \
@@ -27,36 +27,44 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 #
-# `mysqld_safe` patch
-# @see https://github.com/wckr/wocker/pull/28#issuecomment-195945765
-#
-RUN sed -i -e 's/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1" ;;/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1 \& wait" ;;/' /usr/bin/mysqld_safe
-
-#
-# Apache settings
-#
-RUN adduser --uid 1000 --gecos '' --disabled-password wocker \
-  && echo "ServerName localhost" >> /etc/apache2/apache2.conf \
-  && sed -i -e '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf \
-  && sed -i -e "s#DocumentRoot.*#DocumentRoot /var/www/wordpress#" /etc/apache2/sites-available/000-default.conf \
-  && sed -i -e "s/export APACHE_RUN_USER=.*/export APACHE_RUN_USER=wocker/" /etc/apache2/envvars \
-  && sed -i -e "s/export APACHE_RUN_GROUP=.*/export APACHE_RUN_GROUP=wocker/" /etc/apache2/envvars \
-  && a2enmod rewrite
-
-#
 # Install Gems
 #
 RUN gem install mailcatcher
 RUN gem install wordmove -v 2.0.0
 
 #
+# `mysqld_safe` patch
+# @see https://github.com/wckr/wocker/pull/28#issuecomment-195945765
+#
+RUN sed -i -e 's/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1" ;;/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1 \& wait" ;;/' /usr/bin/mysqld_safe
+
+#
+# nginx settings
+#
+RUN adduser --uid 1000 --gecos '' --disabled-password wocker
+RUN sed -i -e "s#root /var/www/html;#root /var/www/wordpress/;#" /etc/nginx/sites-available/default \
+  && sed -i -e "s/index index.html/index index.php index.html/" /etc/nginx/sites-available/default \
+  && sed -i -e "/location.*php/,/}/ s/#//" /etc/nginx/sites-available/default \
+  && sed -i -e "/# With php-cgi.*/,/}/ s/fastcgi.*//" /etc/nginx/sites-available/default \
+  && sed -i -e "s/server_name _;/server_name localhost;/" /etc/nginx/sites-available/default \
+  && sed -i -e "s/user www-data/user wocker/" /etc/nginx/nginx.conf
+
+#
+# php-fpm settings
+#
+RUN sed -i -e "s/^user =.*/user = wocker/" /etc/php/7.0/fpm/pool.d/www.conf \
+  && sed -i -e "s/^group = .*/group = wocker/" /etc/php/7.0/fpm/pool.d/www.conf \
+  && sed -i -e "s/^listen.owner =.*/listen.owner = wocker/" /etc/php/7.0/fpm/pool.d/www.conf \
+  && sed -i -e "s/^listen.group =.*/listen.group = wocker/" /etc/php/7.0/fpm/pool.d/www.conf
+
+#
 # php.ini settings
 #
-RUN sed -i -e "s/^upload_max_filesize.*/upload_max_filesize = 32M/" /etc/php/7.0/apache2/php.ini \
-  && sed -i -e "s/^post_max_size.*/post_max_size = 64M/" /etc/php/7.0/apache2/php.ini \
-  && sed -i -e "s/^display_errors.*/display_errors = On/" /etc/php/7.0/apache2/php.ini \
-  && sed -i -e "s/^;mbstring.internal_encoding.*/mbstring.internal_encoding = UTF-8/" /etc/php/7.0/apache2/php.ini \
-  && sed -i -e "s#^;sendmail_path.*#sendmail_path = /usr/local/bin/catchmail#" /etc/php/7.0/apache2/php.ini
+RUN sed -i -e "s/^upload_max_filesize.*/upload_max_filesize = 32M/" /etc/php/7.0/fpm/php.ini \
+  && sed -i -e "s/^post_max_size.*/post_max_size = 64M/" /etc/php/7.0/fpm/php.ini \
+  && sed -i -e "s/^display_errors.*/display_errors = On/" /etc/php/7.0/fpm/php.ini \
+  && sed -i -e "s/^;mbstring.internal_encoding.*/mbstring.internal_encoding = UTF-8/" /etc/php/7.0/fpm/php.ini \
+  && sed -i -e "s#^;sendmail_path.*#sendmail_path = /usr/local/bin/catchmail#" /etc/php/7.0/fpm/php.ini
 
 #
 # Xdebug settings
@@ -84,7 +92,7 @@ RUN mkdir -p /var/www/wordpress
 ADD wp-cli.yml /var/www
 ADD Movefile /var/www/wordpress
 WORKDIR /var/www/wordpress
-RUN sed -i -e "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf  \
+RUN sed -i -e "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf \
   && service mysql start \
   && mysqladmin -u root password root \
   && mysql -uroot -proot -e \
