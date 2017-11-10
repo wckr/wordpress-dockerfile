@@ -4,26 +4,28 @@ MAINTAINER ixkaito <ixkaito@gmail.com>
 RUN apt-get update \
   && apt-get clean \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    build-essential \
     ca-certificates \
     curl \
-    openssh-client \
     less \
-    nginx \
+    libsqlite3-dev \
     mysql-server \
     mysql-client \
+    nginx \
+    openssh-client \
     php7.0 \
     php7.0-cli \
     php7.0-curl \
+    php7.0-fpm \
     php7.0-gd \
+    php7.0-mbstring \
     php7.0-mysql \
     php7.0-xdebug \
-    php7.0-fpm \
-    supervisor \
-    vim \
-  && apt-get install -y build-essential software-properties-common \
     ruby \
     ruby-dev \
-    libsqlite3-dev \
+    software-properties-common \
+    supervisor \
+    vim \
   && rm -rf /var/lib/apt/lists/*
 
 #
@@ -63,8 +65,8 @@ RUN sed -i -e "s/^user =.*/user = wocker/" /etc/php/7.0/fpm/pool.d/www.conf \
 RUN sed -i -e "s/^upload_max_filesize.*/upload_max_filesize = 32M/" /etc/php/7.0/fpm/php.ini \
   && sed -i -e "s/^post_max_size.*/post_max_size = 64M/" /etc/php/7.0/fpm/php.ini \
   && sed -i -e "s/^display_errors.*/display_errors = On/" /etc/php/7.0/fpm/php.ini \
-  && sed -i -e "s/^;mbstring.internal_encoding.*/mbstring.internal_encoding = UTF-8/" /etc/php/7.0/fpm/php.ini \
-  && sed -i -e "s#^;sendmail_path.*#sendmail_path = /usr/local/bin/catchmail#" /etc/php/7.0/fpm/php.ini
+  && sed -i -e "s#^;sendmail_path.*#sendmail_path = /usr/local/bin/catchmail#" /etc/php/7.0/fpm/php.ini \
+  && sed -i -e "s/^;mbstring.func_overload.*/mbstring.func_overload = 1/" /etc/php/7.0/fpm/php.ini
 RUN service php7.0-fpm start
 
 #
@@ -76,8 +78,8 @@ ADD xdebug.ini /etc/php/7.0/cli/conf.d/20-xdebug.ini
 # Install PHPUnit
 #
 RUN curl -OL https://phar.phpunit.de/phpunit.phar \
-    && chmod +x phpunit.phar \
-    && mv phpunit.phar /usr/local/bin/phpunit
+  && chmod +x phpunit.phar \
+  && mv phpunit.phar /usr/local/bin/phpunit
 
 #
 # Install WP-CLI
