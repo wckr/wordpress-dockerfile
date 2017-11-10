@@ -31,8 +31,14 @@ RUN apt-get update \
 #
 # Install Gems
 #
-RUN gem install mailcatcher
 RUN gem install wordmove -v 2.0.0
+
+#
+# Install Mailhog
+#
+WORKDIR /usr/local/bin
+RUN curl -o mailhog -L https://github.com/mailhog/MailHog/releases/download/v1.0.0/MailHog_linux_amd64 \
+  && chmod +x mailhog
 
 #
 # `mysqld_safe` patch
@@ -65,7 +71,7 @@ RUN sed -i -e "s/^user =.*/user = wocker/" /etc/php/7.0/fpm/pool.d/www.conf \
 RUN sed -i -e "s/^upload_max_filesize.*/upload_max_filesize = 32M/" /etc/php/7.0/fpm/php.ini \
   && sed -i -e "s/^post_max_size.*/post_max_size = 64M/" /etc/php/7.0/fpm/php.ini \
   && sed -i -e "s/^display_errors.*/display_errors = On/" /etc/php/7.0/fpm/php.ini \
-  && sed -i -e "s#^;sendmail_path.*#sendmail_path = /usr/local/bin/mailcatcher#" /etc/php/7.0/fpm/php.ini
+  && sed -i -e "s#^;sendmail_path.*#sendmail_path = /usr/local/bin/mailhog sendmail#" /etc/php/7.0/fpm/php.ini
 RUN service php7.0-fpm start
 
 #
@@ -110,8 +116,7 @@ RUN chown -R wocker:wocker /var/www/wordpress
 #
 # Open ports
 #
-EXPOSE 80 3306
-EXPOSE 80 3306 1080
+EXPOSE 80 3306 8025
 
 #
 # Supervisor
