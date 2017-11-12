@@ -4,11 +4,9 @@ MAINTAINER ixkaito <ixkaito@gmail.com>
 RUN apt-get update \
   && apt-get clean \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    build-essential \
     ca-certificates \
     curl \
     less \
-    libsqlite3-dev \
     mysql-server \
     mysql-client \
     nginx \
@@ -18,12 +16,9 @@ RUN apt-get update \
     php7.0-curl \
     php7.0-fpm \
     php7.0-gd \
-    php7.0-mbstring \
     php7.0-mysql \
     php7.0-xdebug \
     ruby \
-    ruby-dev \
-    software-properties-common \
     supervisor \
     vim \
   && rm -rf /var/lib/apt/lists/*
