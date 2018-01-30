@@ -2,6 +2,9 @@ FROM wocker/base
 
 MAINTAINER ixkaito <ixkaito@gmail.com>
 
+#
+# Install nginx and PHP
+#
 RUN apt-get update \
   && apt-get clean \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -59,8 +62,8 @@ RUN service mysql start \
     --dbname=wordpress \
     --dbuser=wordpress \
     --dbpass=wordpress \
-    --dbhost=localhost
-RUN chown -R wocker:wocker /var/www/wordpress
+    --dbhost=localhost \
+  && chown -R wocker:wocker ${DOCROOT}
 
 #
 # Open ports
