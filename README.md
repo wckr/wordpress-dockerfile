@@ -1,6 +1,6 @@
-# WordPress Dockerfile
+# WordPress Dockerfiles
 
-This is a really simple Dockerfile of WordPress including MySQL and [WP-CLI](http://wp-cli.org/). 
+Dockerfiles of WordPress including PHP 7, MariaDB, WP-CLI, Wordmove, MailHog, Xdebug, PHPUnit. 
 
 ## Usage
 
