@@ -62,7 +62,6 @@ RUN service mysql start \
     --dbname=wordpress \
     --dbuser=wordpress \
     --dbpass=wordpress \
-    --dbhost=localhost \
   && chown -R wocker:wocker ${DOCROOT}
 
 #
