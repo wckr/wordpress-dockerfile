@@ -10,9 +10,9 @@ source /etc/apache2/envvars && exec /usr/sbin/apache2 -DFOREGROUND
 
 # /usr/bin/supervisord
 
-# while true
-# do
-#     sleep 10
-# done
+while true
+do
+  sleep 10
+done
 
 # fg %1
