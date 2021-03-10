@@ -71,8 +71,8 @@ EXPOSE 80 3306 8025
 #
 # Supervisor
 #
-RUN mkdir -p /var/log/supervisor
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# RUN mkdir -p /var/log/supervisor
+# COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # ENTRYPOINT ["/usr/bin/supervisord"]
 
 COPY docker-entrypoint.sh ${BIN}
