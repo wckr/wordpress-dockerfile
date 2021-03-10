@@ -57,9 +57,9 @@ RUN service mysql start \
     --dbuser=wordpress \
     --dbpass=wordpress \
   && chown -R wocker:wocker ${DOCROOT}
-RUN cd .. \
-  && tar -zcf wordpress.tar.gz wordpress \
-  && rm -rf wordpress
+# RUN cd .. \
+#   && tar -zcf wordpress.tar.gz wordpress \
+#   && rm -rf wordpress
 
 VOLUME [ "/var/www/wordpress" ]
 
@@ -68,12 +68,13 @@ VOLUME [ "/var/www/wordpress" ]
 #
 EXPOSE 80 3306 8025
 
-# COPY docker-entrypoint.sh /usr/local/bin/
-# ENTRYPOINT ["docker-entrypoint.sh"]
-
 #
 # Supervisor
 #
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-CMD ["/usr/bin/supervisord"]
+# ENTRYPOINT ["/usr/bin/supervisord"]
+
+COPY docker-entrypoint.sh ${BIN}
+RUN chmod +x ${BIN}/docker-entrypoint.sh
+ENTRYPOINT ["docker-entrypoint.sh"]
