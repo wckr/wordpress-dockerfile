@@ -57,9 +57,12 @@ RUN service mysql start \
     --dbuser=wordpress \
     --dbpass=wordpress \
   && chown -R wocker:wocker ${DOCROOT}
-# RUN cd .. \
-#   && tar -zcf wordpress.tar.gz wordpress \
-#   && rm -rf wordpress
+#
+# Archive WordPress files
+#
+RUN cd .. \
+  && tar -zcf wordpress.tar.gz wordpress \
+  && rm -rf wordpress
 
 VOLUME [ "/var/www/wordpress" ]
 
