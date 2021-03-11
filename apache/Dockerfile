@@ -68,13 +68,6 @@ VOLUME [ "/var/www/wordpress" ]
 #
 EXPOSE 80 3306 8025
 
-#
-# Supervisor
-#
-# RUN mkdir -p /var/log/supervisor
-# COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-# ENTRYPOINT ["/usr/bin/supervisord"]
-
 COPY docker-entrypoint.sh ${BIN}
 RUN chmod +x ${BIN}/docker-entrypoint.sh
 ENTRYPOINT ["docker-entrypoint.sh"]
