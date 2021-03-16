@@ -21,7 +21,8 @@ RUN apt-get update; \
     php7.3-mysql \
     php7.3-xdebug \
     php7.3-xml \
-    php7.3-zip; \
+    php7.3-zip \
+  ; \
   rm -rf /var/lib/apt/lists/*
 
 #
@@ -50,12 +51,14 @@ WORKDIR ${DOCROOT}
 RUN service mysql start; \
   mysqladmin -u root password root; \
   mysql -uroot -proot -e \
-    "CREATE DATABASE wordpress DEFAULT CHARACTER SET utf8; grant all privileges on wordpress.* to wordpress@'%' identified by 'wordpress';"; \
+    "CREATE DATABASE wordpress DEFAULT CHARACTER SET utf8; grant all privileges on wordpress.* to wordpress@'%' identified by 'wordpress';" \
+  ; \
   wp core download --allow-root; \
   wp config create --allow-root \
     --dbname=wordpress \
     --dbuser=wordpress \
-    --dbpass=wordpress; \
+    --dbpass=wordpress \
+  ; \
   chown -R wocker:wocker ${DOCROOT}
 #
 # Archive WordPress files
@@ -64,7 +67,7 @@ RUN cd ${WWW}; \
   tar -zcf wordpress.tar.gz wordpress; \
   rm -rf wordpress
 
-VOLUME [ "/var/www/wordpress" ]
+VOLUME [ ${DOCROOT} ]
 
 #
 # Open ports
