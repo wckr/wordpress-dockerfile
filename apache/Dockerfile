@@ -51,13 +51,13 @@ WORKDIR ${DOCROOT}
 RUN service mysql start; \
   mysqladmin -u root password root; \
   mysql -uroot -proot -e \
-    "CREATE DATABASE wordpress DEFAULT CHARACTER SET utf8; grant all privileges on wordpress.* to wordpress@'%' identified by 'wordpress';" \
+    "CREATE DATABASE wordpress DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci; GRANT ALL PRIVILEGES ON wordpress.* TO username@'%' IDENTIFIED BY 'password';" \
   ; \
   wp core download --allow-root; \
   wp config create --allow-root \
     --dbname=wordpress \
-    --dbuser=wordpress \
-    --dbpass=wordpress \
+    --dbuser=username \
+    --dbpass=password \
   ; \
   chown -R wocker:wocker ${DOCROOT}
 #
