@@ -63,11 +63,11 @@ RUN service mysql start; \
 #
 # Archive WordPress files
 #
-RUN cd ${WWW}; \
+RUN cd /var/www; \
   tar -zcf wordpress.tar.gz wordpress; \
   rm -rf wordpress
 
-VOLUME [ ${DOCROOT} ]
+VOLUME ${DOCROOT}
 
 #
 # Open ports
