@@ -1,7 +1,7 @@
 #!/bin/bash
 
-uid="$(id -u)"
-gid="$(id -g)"
+$user="$(id -u)"
+$group="$(id -g)"
 
 if [ ! -e index.php ] && [ ! -e wp-includes/version.php ] && [ -e /src/wordpress.tar.gz ]; then
   tar -zxf /src/wordpress.tar.gz -C .
