@@ -30,7 +30,7 @@ RUN apt-get update; \
 #
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf; \
   sed -i -e '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf; \
-  sed -i -e "s#DocumentRoot.*#DocumentRoot /var/www/wordpress#" /etc/apache2/sites-available/000-default.conf; \
+  sed -i -e "s#DocumentRoot.*#DocumentRoot ${DOCROOT}#" /etc/apache2/sites-available/000-default.conf; \
   sed -i -e "s/export APACHE_RUN_USER=.*/export APACHE_RUN_USER=wocker/" /etc/apache2/envvars; \
   sed -i -e "s/export APACHE_RUN_GROUP=.*/export APACHE_RUN_GROUP=wocker/" /etc/apache2/envvars; \
   a2enmod rewrite
@@ -63,9 +63,9 @@ RUN service mysql start; \
 #
 # Archive WordPress files
 #
-RUN cd /var/www; \
-  tar -zcf wordpress.tar.gz wordpress; \
-  rm -rf wordpress
+RUN mkdir -p /src; \
+  tar -zcf /src/wordpress.tar.gz -C ${DOCROOT} .; \
+  rm -rf ${DOCROOT}
 
 VOLUME ${DOCROOT}
 

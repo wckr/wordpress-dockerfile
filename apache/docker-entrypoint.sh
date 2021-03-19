@@ -1,12 +1,13 @@
 #!/bin/bash
 
-if [ ! -e index.php ] && [ ! -e wp-includes/version.php ] && [ -e /var/www/wordpress.tar.gz ]; then
-  tar -zxf /var/www/wordpress.tar.gz -C /var/www
+uid="$(id -u)"
+gid="$(id -g)"
+
+if [ ! -e index.php ] && [ ! -e wp-includes/version.php ] && [ -e /src/wordpress.tar.gz ]; then
+  tar -zxf /src/wordpress.tar.gz -C .
 fi
 
-if [ -e /var/www/wordpress.tar.gz ]; then
-  rm /var/www/wordpress.tar.gz
-fi
+chown -R "$user:$group" .
 
 /usr/bin/mysqld_safe &
 
